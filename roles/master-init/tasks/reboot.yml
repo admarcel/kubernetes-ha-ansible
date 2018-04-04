@@ -1,0 +1,17 @@
+---
+
+- name: Rebooting the server
+  shell: sleep 2 && shutdown -r now
+  async: 1
+  poll: 0
+
+- name: Wait for server to come back
+  wait_for:
+    host: "{{ ansible_ssh_host }}" 
+    port: "{{ ansible_ssh_port }}"
+    state: started 
+    delay: 5 
+    timeout: 600 
+    search_regex: OpenSSH
+  connection: local
+  become: no

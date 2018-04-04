@@ -1,0 +1,4 @@
+---
+
+- name: init kubernetes master 2-3
+  command: kubeadm init --config=/root/config.yaml

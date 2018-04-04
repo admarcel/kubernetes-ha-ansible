@@ -1,0 +1,38 @@
+---
+- name: init kubernetes master-1
+  shell: kubeadm init --config=/root/config.yaml > /root/master-init.log
+
+- name: get command for node insertion in cluster
+  synchronize:
+    mode: pull
+    src: "/root/master-init.log"
+    dest: "../files/"
+
+- name: synchronize pki files
+  synchronize:
+    src: "/etc/kubernetes/pki/{{ item }}"
+    dest: "../files/pki/"
+    mode: pull
+  with_items:
+    - ca.crt
+    - ca.key
+    - sa.key
+    - sa.pub
+
+- name: install flannel pod network
+  command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml
+
+- name: export kube-proxy configmap
+  shell: kubectl get configmap -n kube-system kube-proxy -o yaml > /root/kube-proxy-cm.yaml
+
+- name: replace ip address with loadbalancer ip
+  shell: sed -i 's/"server':' https':'\/\/*.*.*.*':'6443"/"server':' https':'\/\/{{ virtual_ip }}':'6443"/g' /root/kube-proxy-cm.yaml
+
+- name: apply new config
+  command: kubectl apply -f /root/kube-proxy-cm.yaml --force
+
+- name: restart all kube-proxy, ensure that they load the new configmap
+  command: kubectl delete pod -n kube-system -l k8s-app=kube-proxy
+
+- name: Enable pod on master
+  command: kubectl taint nodes --all node-role.kubernetes.io/master-
