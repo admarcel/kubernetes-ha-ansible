@@ -1,7 +1,7 @@
 ---
 - hosts: all
   become: true
-  connection: local
+  #connection: local
   vars:
     docker_ce_package: "docker-ce-17.03.2.ce-1.el7.centos.x86_64.rpm"
     docker_ce_selinux_package: "docker-ce-selinux-17.03.2.ce-1.el7.centos.noarch.rpm"
@@ -9,11 +9,13 @@
     - { role: docker, tags: ['docker', 'all-in', 'all']}
     - { role: configuration, tags: ['configuration', 'all-in', 'all']}
 
-- hosts: Master-1
+- hosts: master[0]
+  become: yes
   roles:
     - { role: etcd, tags: ['etcd-master-1', 'master-1-all', 'all-in', 'all']}
 
-- hosts: Master
+- hosts: master
+  become: yes
   vars:
     hostname_master_1: "Master-1"
     hostname_master_2: "Master-2"

@@ -4,16 +4,15 @@
     path: /etc/kubernetes/pki/etcd
     state: directory
     mode: 0755
-  when:
-    - ansible_hostname == "{{ hostname_master_2 }}" or ansible_hostname == "{{ hostname_master_3 }}"
+  when: ansible_hostname != groups['master'][0]
+  become: yes
 
 - name: get files for other master
   synchronize:
     mode: push
     src: "../../etcd/files/"
     dest: "/etc/kubernetes/pki/etcd/"
-  when:
-    - ansible_hostname == "{{ hostname_master_2 }}" or ansible_hostname == "{{ hostname_master_3 }}"
+  when: ansible_hostname != groups['master'][0]
 
 - name: copy config.json generate with cfssl prints defaults csr
   template:

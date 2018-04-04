@@ -2,7 +2,7 @@
 - name: get cfssljson
   get_url:
     url: "{{ item }}"
-    dest: "/usr/local/bin/cfssljson"
+    dest: "/usr/bin/cfssljson"
     mode: 0755
   with_items:
     - "https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64"
@@ -10,7 +10,7 @@
 - name: get cfssl
   get_url:
     url: "{{ item }}"
-    dest: "/usr/local/bin/cfssl"
+    dest: "/usr/bin/cfssl"
     mode: 0755
   with_items:
     - "https://pkg.cfssl.org/R1.2/cfssl_linux-amd64"
